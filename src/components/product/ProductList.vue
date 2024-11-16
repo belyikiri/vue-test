@@ -16,6 +16,7 @@ const repository = new Repository()
 
 onMounted(async () => {
   await getProducts()
+  syncSelectedCategories()
   filterProducts()
 })
 
@@ -38,8 +39,14 @@ const getProducts = async () => {
   }
 }
 
+const syncSelectedCategories = () => {
+  const params = new URLSearchParams(window.location.search)
+  if (params.has('categories')) {
+    selectedCategories.value = params.get('categories')?.split(',') ?? []
+  }
+}
+
 const filterProducts = () => {
-  // TODO get history URL params and actualize products
   selectedProducts.value = selectedCategories.value.length === 0
       ? products.value
       : products.value.filter((product: Product) => selectedCategories.value.includes(product.category))
@@ -50,11 +57,13 @@ const updateFilter = (categories: string[]) => {
 }
 
 watch(selectedCategories, () => {
-  selectedProducts.value = products.value.filter((product: Product) => {
-    if (selectedCategories.value.length === 0) {
-      return true
-    }
+  if (selectedCategories.value.length === 0) {
+    selectedProducts.value = products.value
 
+    return
+  }
+
+  selectedProducts.value = products.value.filter((product: Product) => {
     return selectedCategories.value.includes(product.category)
   })
 })
@@ -65,18 +74,17 @@ const reloadPage = (): void => {
 </script>
 
 <template>
-  <template v-if="!loading">
+  <template v-if="!loading && !error">
     <h1 class="main-title">Product list</h1>
     <ProductFilter :categories="categories" @update-filter="updateFilter"/>
     <div class="product__list">
       <ProductDetail v-for="product in selectedProducts" :key="product.id" :product="product"/>
     </div>
   </template>
-  <div v-else class="loading">
+  <div v-else-if="loading" class="loading">
     <span class="ico ico-spinner"></span>
   </div>
-
-  <div v-if="error" class="error">
+  <div v-else-if="error" class="error">
     <div>{{ error }}</div>
     <button @click.prevent="reloadPage">Refresh</button>
   </div>

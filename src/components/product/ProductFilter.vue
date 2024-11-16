@@ -1,8 +1,15 @@
 <script lang="ts" setup>
-import {type PropType, ref} from 'vue'
+import {onMounted, type PropType, ref} from 'vue'
 import type Category from "@/api/models/Category";
 
 const selectedCategories = ref<string[]>([])
+
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search)
+  if (params.has('categories')) {
+    selectedCategories.value = params.get('categories')?.split(',') ?? []
+  }
+})
 
 defineProps({
   categories: {
@@ -19,45 +26,63 @@ const selectCategory = (event: any) => {
   } else {
     selectedCategories.value = selectedCategories.value.filter((c: string) => c !== categoryName)
   }
+
+  updateUrl()
   emits('updateFilter', selectedCategories.value)
 }
 
 const resetFilters = () => {
   selectedCategories.value = []
+
+  updateUrl()
   emits('updateFilter', selectedCategories.value)
+}
+
+const updateUrl = () => {
+  const currentUrl = new URL(window.location.href)
+
+  currentUrl.searchParams.delete('categories')
+  if (selectedCategories.value.length) {
+    currentUrl.searchParams.set('categories', selectedCategories.value.join(','))
+  }
+
+  history.pushState({}, '', currentUrl.toString())
+}
+
+const isCheckboxSelected = (categoryName: string): boolean => {
+  return selectedCategories.value.includes(categoryName)
 }
 </script>
 
 <template>
-  <div class="product-filter">
+  <div class="product__filter">
     <div
-        class="product-filter__checkbox"
+        class="product__filter__checkbox"
         v-for="category in categories"
         :key="category.name"
     >
       <input
           type="checkbox"
-          :id="category.name"
           :value="category.name"
-          :checked="selectedCategories.includes(category.name)"
+          :checked="isCheckboxSelected(category.name)"
           @change="selectCategory"
       />
       <label :for="category.name">{{
           `${category.name} (${category.count})`
         }}</label>
     </div>
-    <button class="product-filter__reset" v-if="selectedCategories.length" @click.prevent="resetFilters">Reset</button>
+    <button class="product__filter__reset" v-if="selectedCategories.length" @click.prevent="resetFilters">Reset</button>
   </div>
 </template>
 
 <style scoped>
-.product-filter {
+.product__filter {
   margin: 20px 0;
   display: flex;
   justify-content: flex-start;
   gap: 20px;
 
-  .product-filter__checkbox {
+  .product__filter__checkbox {
     display: inline-block;
 
     input {
@@ -84,7 +109,7 @@ const resetFilters = () => {
     }
   }
 
-  .product-filter__reset {
+  .product__filter__reset {
     margin-left: 10px;
   }
 }
