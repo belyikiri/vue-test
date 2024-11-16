@@ -71,7 +71,7 @@ const showFullText = (): void => {
   min-width: 1px;
 
   .ico-star {
-    background: url('/public/star.svg') no-repeat 50%;
+    background: url('/star.svg') no-repeat 50%;
     background-size: contain;
     margin: 0 5px;
     height: 18px;

@@ -9,6 +9,10 @@ onMounted(() => {
   if (params.has('categories')) {
     selectedCategories.value = params.get('categories')?.split(',') ?? []
   }
+
+  window.addEventListener('popstate', function () {
+    window.location.reload()
+  });
 })
 
 defineProps({
@@ -63,6 +67,7 @@ const isCheckboxSelected = (categoryName: string): boolean => {
     >
       <input
           type="checkbox"
+          :id="category.name"
           :value="category.name"
           :checked="isCheckboxSelected(category.name)"
           @change="selectCategory"
@@ -104,7 +109,7 @@ const isCheckboxSelected = (categoryName: string): boolean => {
         display: inline-block;
         vertical-align: middle;
         cursor: pointer;
-        margin-right: 0.5em;
+        margin-right: 10px;
       }
     }
   }

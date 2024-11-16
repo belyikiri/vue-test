@@ -117,7 +117,7 @@ const reloadPage = (): void => {
   margin-top: 50px;
 
   .ico-spinner {
-    background: url('/public/spinner.svg') no-repeat 50%;
+    background: url('/spinner.svg') no-repeat 50%;
     background-size: contain;
     height: 100px;
     width: 100px;
