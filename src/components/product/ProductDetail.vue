@@ -123,6 +123,4 @@ const showFullText = (): void => {
     }
   }
 }
-
-
 </style>
